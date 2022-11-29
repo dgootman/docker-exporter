@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "docker-exporter"
+version = "0.1.0"
+description = ""
+authors = ["David Gootman"]
+readme = "README.md"
+packages = [{include = "docker-exporter"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+docker = "^6.0.1"
+prometheus-client = "^0.15.0"
+tqdm = "^4.64.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

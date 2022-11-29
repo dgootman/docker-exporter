@@ -1,0 +1,12 @@
+version: "3"
+services:
+  docker-exporter:
+    image: ghcr.io/dgootman/docker-exporter
+    container_name: docker-exporter
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.docker-exporter.rule=Host(`${TRAEFIK_HOST:?}`) && PathPrefix(`/metrics/docker`)
+      - traefik.http.routers.docker-exporter.entrypoints=${TRAEFIK_ENTRYPOINTS:?}
