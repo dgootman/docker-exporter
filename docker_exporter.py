@@ -1,10 +1,20 @@
+import json
+import logging
+import os
+from pathlib import Path
 from typing import Callable
 from wsgiref.simple_server import make_server
 
 import docker
-from tqdm.contrib.concurrent import thread_map
 from prometheus_client import make_wsgi_app
 from prometheus_client.core import REGISTRY, GaugeMetricFamily
+from tqdm.contrib.concurrent import thread_map
+
+logging.basicConfig()
+
+logger = logging.getLogger(Path(__file__).stem)
+if "DEBUG" in os.environ:
+    logger.setLevel(logging.DEBUG)
 
 
 docker_client = docker.from_env()
@@ -18,6 +28,8 @@ class CustomCollector(object):
                 docker_client.containers.list(),
             )
         )
+
+        logger.debug(f"Stats: {json.dumps(stats)}")
 
         def gauge_metric(
             name: str,
