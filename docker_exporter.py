@@ -77,7 +77,7 @@ class CustomCollector(object):
             lambda s: sum(
                 [
                     io["value"]
-                    for io in s["blkio_stats"]["io_service_bytes_recursive"]
+                    for io in s["blkio_stats"]["io_service_bytes_recursive"] or []
                     if io["op"] == "read"
                 ]
             ),
@@ -88,7 +88,7 @@ class CustomCollector(object):
             lambda s: sum(
                 [
                     io["value"]
-                    for io in s["blkio_stats"]["io_service_bytes_recursive"]
+                    for io in s["blkio_stats"]["io_service_bytes_recursive"] or []
                     if io["op"] == "write"
                 ]
             ),
