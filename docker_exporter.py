@@ -12,8 +12,13 @@ from prometheus_client.core import REGISTRY, GaugeMetricFamily
 
 logging.basicConfig()
 
+host = os.environ.get("HTTP_HOST", "")
+port = int(os.environ.get("HTTP_PORT", 8080))
+debug = os.environ.get("DEBUG", "false").lower() in ["true", "on", "y", "yes", "1"]
+
+
 logger = logging.getLogger(Path(__file__).stem)
-if "DEBUG" in os.environ:
+if debug:
     logger.setLevel(logging.DEBUG)
 
 
@@ -119,7 +124,7 @@ class CustomCollector(object):
 REGISTRY.register(CustomCollector())
 
 app = make_wsgi_app()
-httpd = make_server("", 8080, app)
+httpd = make_server(host, port, app)
 
-print("Started server: http://localhost:8080")
+print(f"Started server: http://localhost:{port}")
 httpd.serve_forever()
