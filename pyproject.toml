@@ -10,7 +10,6 @@ packages = [{include = "docker-exporter"}]
 python = "^3.10"
 docker = "^6.0.1"
 prometheus-client = "^0.15.0"
-tqdm = "^4.64.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.10.0"

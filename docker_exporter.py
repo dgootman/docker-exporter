@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 from typing import Callable
 from wsgiref.simple_server import make_server
@@ -8,7 +9,6 @@ from wsgiref.simple_server import make_server
 import docker
 from prometheus_client import make_wsgi_app
 from prometheus_client.core import REGISTRY, GaugeMetricFamily
-from tqdm.contrib.concurrent import thread_map
 
 logging.basicConfig()
 
@@ -22,12 +22,13 @@ docker_client = docker.from_env()
 
 class CustomCollector(object):
     def collect(self):
-        stats = list(
-            thread_map(
-                lambda c: c.stats(stream=False),
-                docker_client.containers.list(),
+        with ThreadPoolExecutor() as t:
+            stats = list(
+                t.map(
+                    lambda c: c.stats(stream=False),
+                    docker_client.containers.list(),
+                )
             )
-        )
 
         logger.debug(f"Stats: {json.dumps(stats)}")
 
