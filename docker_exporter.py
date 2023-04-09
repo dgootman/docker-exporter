@@ -9,8 +9,11 @@ from wsgiref.simple_server import make_server
 import docker
 from prometheus_client import make_wsgi_app
 from prometheus_client.core import REGISTRY, GaugeMetricFamily
+from requests.adapters import HTTPAdapter
 
 logging.basicConfig()
+
+MAX_POOL_SIZE = 100
 
 host = os.environ.get("HTTP_HOST", "")
 port = int(os.environ.get("HTTP_PORT", 8080))
@@ -22,7 +25,15 @@ if debug:
     logger.setLevel(logging.DEBUG)
 
 
-docker_client = docker.from_env()
+docker_client = docker.from_env(max_pool_size=MAX_POOL_SIZE)
+
+# Patch the default HTTPAdapter for docker to use a pool size of MAX_POOL_SIZE
+# Setting max_pool_size in docker.from_env doen't take effect for HTTP connections
+if (
+    "http://" in docker_client.api.adapters
+    and docker_client.api.adapters["http://"]._pool_maxsize < MAX_POOL_SIZE
+):
+    docker_client.api.mount("http://", HTTPAdapter(pool_maxsize=MAX_POOL_SIZE))
 
 
 class CustomCollector(object):
