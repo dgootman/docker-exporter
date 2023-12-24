@@ -55,7 +55,11 @@ class CustomCollector(object):
         ):
             g = GaugeMetricFamily(name, documentation, labels=["name"])
             for stat in stats:
-                g.add_metric([stat["name"].lstrip("/")], supplier(stat))
+                v = supplier(stat)
+                if v is not None:
+                    g.add_metric([stat["name"].lstrip("/")], v)
+                else:
+                    logger.debug(f"No value for {name} metric for {stat['name']}")
             return g
 
         yield gauge_metric(
@@ -81,12 +85,12 @@ class CustomCollector(object):
         yield gauge_metric(
             "container_mem_usage",
             "Total memory usage for container",
-            lambda s: s["memory_stats"]["usage"],
+            lambda s: s["memory_stats"].get("usage", None),
         )
         yield gauge_metric(
             "container_mem_limit",
             "Memory usage limit for container",
-            lambda s: s["memory_stats"]["limit"],
+            lambda s: s["memory_stats"].get("limit", None),
         )
         yield gauge_metric(
             "container_io_read_total",
